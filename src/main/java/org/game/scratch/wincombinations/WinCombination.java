@@ -1,10 +1,8 @@
-package org.game.scratch.rewards;
+package org.game.scratch.wincombinations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.util.List;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

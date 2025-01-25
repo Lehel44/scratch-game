@@ -8,20 +8,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public class SymbolDeserializer extends JsonDeserializer<Symbol> {
+/**
+ * Custom deserializer to map symbols to their corresponding subclass.
+ */
+public final class SymbolDeserializer extends JsonDeserializer<Symbol> {
 
+    /**
+     * Deserializes the symbols from a JSON first based on the 'type' and
+     * then on the 'impact' attribute.
+     *
+     * @param jp   Parser used for reading JSON content
+     * @param ctxt Context that can be used to access information about
+     *             this deserialization activity.
+     * @return the deserialized Symbol object
+     * @throws IOException if JSON input is invalid
+     */
     @Override
     public Symbol deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         JsonNode node = mapper.readTree(jp);
 
-        // Use "type" as the first discriminator
         String type = node.get("type").asText();
 
         if ("standard".equals(type)) {
             return mapper.treeToValue(node, StandardSymbol.class);
         } else if ("bonus".equals(type)) {
-            // Use "impact" as the secondary discriminator
             String impact = node.get("impact").asText();
             return switch (impact) {
                 case "multiply_reward" -> mapper.treeToValue(node, MultiplyBonusSymbol.class);

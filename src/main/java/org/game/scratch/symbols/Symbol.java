@@ -5,8 +5,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class Symbol {
 
-    public Symbol() {
-    }
-
     public abstract double applyEffect(final double bet);
 }

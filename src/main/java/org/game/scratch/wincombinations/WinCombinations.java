@@ -1,10 +1,13 @@
-package org.game.scratch.rewards;
+package org.game.scratch.wincombinations;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
+/**
+ * Wrapper class to store WinCombinations by their names.
+ */
 public class WinCombinations {
 
     @JsonProperty("win_combinations")

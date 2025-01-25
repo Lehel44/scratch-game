@@ -7,9 +7,6 @@ public class StandardSymbol extends Symbol {
     @JsonProperty("reward_multiplier")
     double rewardMultiplier;
 
-    public StandardSymbol() {
-    }
-
     @Override
     public double applyEffect(final double bet) {
         return bet * rewardMultiplier;
@@ -17,9 +14,5 @@ public class StandardSymbol extends Symbol {
 
     public double getRewardMultiplier() {
         return rewardMultiplier;
-    }
-
-    public void setRewardMultiplier(double rewardMultiplier) {
-        this.rewardMultiplier = rewardMultiplier;
     }
 }

@@ -1,8 +1,8 @@
 package org.game.scratch.process;
 
-import org.game.scratch.rewards.SameSymbolWinCombination;
-import org.game.scratch.rewards.WinCombination;
-import org.game.scratch.rewards.WinCombinations;
+import org.game.scratch.wincombinations.SameSymbolWinCombination;
+import org.game.scratch.wincombinations.WinCombination;
+import org.game.scratch.wincombinations.WinCombinations;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,6 @@ public class SymbolWinCombinationTracker {
             int symbolCount = symbolEntry.getValue();
 
             for (WinCombination winCombination : winCombinations.getWinCombinationMap().values()) {
-                // if the current symbol didn't match any win combination continue with the next symbol
                 if (winCombination.checkWinCombination(symbolName, symbol2DArray, symbolCount)) {
                     addWinCombination(symbolName, winCombination);
                 }

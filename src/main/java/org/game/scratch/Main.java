@@ -4,29 +4,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.game.scratch.prizes.PrizeCalculator;
+import org.game.scratch.probability.WeightedProbabilitySymbolGenerator;
 import org.game.scratch.process.SymbolWinCombinationTracker;
-import org.game.scratch.rewards.LinearWinCombination;
-import org.game.scratch.rewards.SameSymbolWinCombination;
-import org.game.scratch.rewards.WinCombination;
-import org.game.scratch.rewards.WinCombinations;
-import org.game.scratch.symbols.BonusSymbol;
+import org.game.scratch.wincombinations.WinCombination;
+import org.game.scratch.wincombinations.WinCombinations;
 import org.game.scratch.symbols.StandardSymbol;
 import org.game.scratch.symbols.Symbol;
 import org.game.scratch.symbols.SymbolDeserializer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SplittableRandom;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
+//TODO unmodifiable getters
 public class Main {
     public static void main(String[] args) throws IOException {
 
@@ -53,7 +47,6 @@ public class Main {
 
         String[][] symbol2DArray = new String[rows][columns];
 
-
         JsonNode probabilityArray = jsonNode.get("probabilities").get("standard_symbols");
 
         for (JsonNode node : probabilityArray) {
@@ -61,7 +54,7 @@ public class Main {
             int row = node.get("row").asInt();
             Map<String, Double> map = mapper.convertValue(node.get("symbols"), new TypeReference<>() {
             });
-            String chosenSymbol = weightedProbabilitySymbolGenerator(map);
+            String chosenSymbol = WeightedProbabilitySymbolGenerator.generate(map);
             symbol2DArray[row][column] = chosenSymbol;
         }
 
@@ -73,7 +66,7 @@ public class Main {
         Map<String, Double> bonusSymbolMap = mapper.convertValue(jsonNodeBonusSymbols, new TypeReference<>() {
         });
 
-        String bonusSymbol = weightedProbabilitySymbolGenerator(bonusSymbolMap);
+        String bonusSymbol = WeightedProbabilitySymbolGenerator.generate(bonusSymbolMap);
 
         symbol2DArray[bonusRow][bonusColumn] = bonusSymbol;
 
@@ -96,7 +89,7 @@ public class Main {
         int bet = 100;
 
         if (winCombinationTracker.hasWon()) {
-            double winPrize = calculateWinPrize(bet, winCombinationTracker.getAppliedWinCombinationBySymbol(), symbols, bonusSymbol);
+            double winPrize = PrizeCalculator.calculate(bet, winCombinationTracker.getAppliedWinCombinationBySymbol(), symbols, bonusSymbol);
             System.out.println("WIN PRIZE: " + winPrize);
         }
 
@@ -104,29 +97,6 @@ public class Main {
         System.out.println("asd");
     }
 
-    private static double calculateWinPrize(int bet, Map<String, Map<String, WinCombination>> appliedWincombinationBySymbol, Map<String, Symbol> symbols,
-                                            String bonusSymbolName) {
-        double totalSum = 0;
-        double sum;
-        for (Map.Entry<String, Map<String, WinCombination>> winCombinationSymbolEntry : appliedWincombinationBySymbol.entrySet()) {
-            String symbolName = winCombinationSymbolEntry.getKey();
-            Map<String, WinCombination> winCombinationMap = winCombinationSymbolEntry.getValue();
-            sum = bet;
-            for (Map.Entry<String, WinCombination> groupWinCombinationEntry : winCombinationMap.entrySet()) {
-                WinCombination winCombination = groupWinCombinationEntry.getValue();
-                double rewardMultiplier = winCombination.getRewardMultiplier();
-                double symbolMultiplier = ((StandardSymbol) symbols.get(symbolName)).getRewardMultiplier();
-                sum *= rewardMultiplier;
-                sum *= symbolMultiplier;
-            }
-            totalSum += sum;
-        }
-
-        Symbol bonusSymbol = symbols.get(bonusSymbolName);
-        totalSum = bonusSymbol.applyEffect(totalSum);
-
-        return totalSum;
-    }
 
     public static Map<String, Integer> countSameSymbols(String[][] array2D) {
         Map<String, Integer> countSymbolMap = new HashMap<>();
@@ -140,27 +110,5 @@ public class Main {
             }
         }
         return countSymbolMap;
-    }
-
-    public static String weightedProbabilitySymbolGenerator(Map<String, Double> probabilityDistribution) {
-        double sum = probabilityDistribution.values().stream().mapToDouble(v -> v).sum();
-        LinkedHashMap<String, Double> linkedProbDist = new LinkedHashMap<>(probabilityDistribution);
-
-        List<Double> cumulativeProbabilities = new ArrayList<>();
-        double cumulative = 0;
-        for (Map.Entry<String, Double> entry : probabilityDistribution.entrySet()) {
-            cumulative += entry.getValue();
-            cumulativeProbabilities.add(cumulative);
-        }
-
-        SplittableRandom random = new SplittableRandom();
-        double rand = random.nextDouble(0, sum);
-
-        for (int i = 0; i < cumulativeProbabilities.size(); i++) {
-            if (rand < cumulativeProbabilities.get(i)) {
-                return linkedProbDist.keySet().toArray(new String[0])[i];
-            }
-        }
-        throw new IllegalArgumentException("Invalid probability distribution");
     }
 }
