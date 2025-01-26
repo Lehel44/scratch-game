@@ -7,7 +7,7 @@ class MainTest {
 
     @Test
     void testCommandLineParsing() {
-        String[] args = {"-c", "src/main/resources/config.json", "-b", "100.0"};
+        String[] args = {"-c", "src/test/resources/config.json", "-b", "100.0"};
         assertDoesNotThrow(() -> {
             Main.main(args);
         });
