@@ -50,15 +50,6 @@ public class GameMatrixManager {
         gameMatrix[bonusRow][bonusColumn] = bonusSymbol;
     }
 
-    public void printGameMatrix() {
-        for (int i = 0; i < gameMatrix.length; i++) {
-            for (int j = 0; j < gameMatrix[i].length; j++) {
-                System.out.print(gameMatrix[i][j] + " ");
-            }
-            System.out.println();
-        }
-    }
-
     public String[][] getGameMatrix() {
         return gameMatrix;
     }

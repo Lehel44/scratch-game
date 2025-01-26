@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.game.scratch.process.SymbolWinCombinationTracker;
+import org.game.scratch.wincombinations.WinCombination;
 import org.game.scratch.wincombinations.WinCombinations;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class WinCombinationProcessor {
         this.mapper = ObjectMapperProvider.getInstance();
     }
 
-    public SymbolWinCombinationTracker.WinCombinationResult processWinCombinations() throws JsonProcessingException {
+    public Map<String, Map<String, WinCombination>> processWinCombinations() throws JsonProcessingException {
         final WinCombinations winCombinations = mapper.treeToValue(config.get("win_combinations"), WinCombinations.class);
         final Map<String, Integer> symbolCountMap = countSameSymbols(gameMatrix);
 

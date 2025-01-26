@@ -7,6 +7,15 @@ public class SameSymbolWinCombination extends WinCombination {
 
     int count;
 
+    public SameSymbolWinCombination() {
+        // No arg constructor for Jackson serialization
+    }
+
+    public SameSymbolWinCombination(double rewardMultiplier, int count) {
+        this.rewardMultiplier = rewardMultiplier;
+        this.count = count;
+    }
+
     public int getCount() {
         return count;
     }

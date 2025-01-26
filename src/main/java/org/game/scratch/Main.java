@@ -9,11 +9,12 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.game.scratch.game.ConfigurationLoader;
 import org.game.scratch.game.GameMatrixManager;
+import org.game.scratch.output.OutputPrinter;
 import org.game.scratch.game.SymbolProcessor;
 import org.game.scratch.game.WinCombinationProcessor;
 import org.game.scratch.prizes.PrizeCalculator;
-import org.game.scratch.process.SymbolWinCombinationTracker;
 import org.game.scratch.symbols.Symbol;
+import org.game.scratch.wincombinations.WinCombination;
 
 import java.io.IOException;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class Main {
         formatter.printHelp("java -jar <your-jar-file>", options);
     }
 
-    private static void runGame(final String configPath, final double bettingAmount) throws IOException {
+    static void runGame(final String configPath, final double bettingAmount) throws IOException {
         ConfigurationLoader loader = new ConfigurationLoader(configPath);
         final JsonNode config = loader.loadConfig();
 
@@ -75,21 +76,21 @@ public class Main {
         final String bonusSymbol = symbolProcessor.getBonusSymbol();
         manager.placeBonusSymbol(bonusSymbol);
 
-        // Print game matrix
-        manager.printGameMatrix();
+        final String[][] gameMatrix = manager.getGameMatrix();
 
         // Process win combinations
-        final WinCombinationProcessor processor = new WinCombinationProcessor(manager.getGameMatrix(), config);
-        final SymbolWinCombinationTracker.WinCombinationResult result = processor.processWinCombinations();
+        final WinCombinationProcessor processor = new WinCombinationProcessor(gameMatrix, config);
+        final Map<String, Map<String, WinCombination>> result = processor.processWinCombinations();
 
-        if (result.hasWon()) {
-            // Deserialze symbols into a (symbol name, symbol object) map
-            final Map<String, Symbol> symbols = symbolProcessor.deserializeSymbols();
-            // Calculate win prize
-            double winPrize = PrizeCalculator.calculate(bettingAmount, result.appliedWinCombinationBySymbol(), symbols, bonusSymbol);
-            System.out.println("WIN PRIZE: " + winPrize);
-        } else {
-            System.out.println("NO WIN!");
-        }
+
+        // Deserialize symbols into a (symbol name, symbol object) map
+        final Map<String, Symbol> symbols = symbolProcessor.deserializeSymbols();
+        // Calculate win prize
+        double winPrize = PrizeCalculator.calculate(bettingAmount, result, symbols, bonusSymbol);
+
+        // Print result
+        final OutputPrinter printer = new OutputPrinter(gameMatrix, winPrize, result, bonusSymbol);
+        printer.printResult();
+
     }
 }

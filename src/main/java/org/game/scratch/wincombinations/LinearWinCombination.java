@@ -12,6 +12,15 @@ public class LinearWinCombination extends WinCombination {
     @JsonProperty("covered_areas")
     private List<List<String>> coveredAreas;
 
+    public LinearWinCombination() {
+        // No arg constructor for Jackson serialization
+    }
+
+    public LinearWinCombination(List<List<String>> coveredAreas, double rewardMultiplier) {
+        this.rewardMultiplier = rewardMultiplier;
+        this.coveredAreas = coveredAreas;
+    }
+
     public List<List<String>> getCoveredAreas() {
         return coveredAreas;
     }

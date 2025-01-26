@@ -21,7 +21,7 @@ public class SymbolWinCombinationTracker {
      * @param winCombinations - holds a (group, winCombination) map
      * @param gameMatrix      - symbol array of the current game
      */
-    public WinCombinationResult processWinCombinations(final Map<String, Integer> symbolCountMap, final WinCombinations winCombinations, final String[][] gameMatrix) {
+    public Map<String, Map<String, WinCombination>> processWinCombinations(final Map<String, Integer> symbolCountMap, final WinCombinations winCombinations, final String[][] gameMatrix) {
         final Map<String, Map<String, WinCombination>> appliedWinCombinationBySymbol = new HashMap<>();
 
         for (Map.Entry<String, Integer> symbolEntry : symbolCountMap.entrySet()) {
@@ -34,7 +34,7 @@ public class SymbolWinCombinationTracker {
                 }
             }
         }
-        return new WinCombinationResult(Collections.unmodifiableMap(appliedWinCombinationBySymbol), !appliedWinCombinationBySymbol.isEmpty());
+        return Collections.unmodifiableMap(appliedWinCombinationBySymbol);
     }
 
     /**
@@ -67,9 +67,5 @@ public class SymbolWinCombinationTracker {
             return currentSameSymbolWinCombination.getCount() > existingSameSymbolWinCombination.getCount() ? current : existing;
         }
         return existing;
-    }
-
-    public record WinCombinationResult(Map<String, Map<String, WinCombination>> appliedWinCombinationBySymbol,
-                                       boolean hasWon) {
     }
 }
