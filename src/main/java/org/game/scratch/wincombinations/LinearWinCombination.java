@@ -36,7 +36,7 @@ public class LinearWinCombination extends WinCombination {
      *
      * @param winCombination - the win combination that contains the areas
      * @param symbol         - the symbol that the covered areas may contain
-     * @param gameMatrix        - the game matrix
+     * @param gameMatrix     - the game matrix
      * @return if there is matching covered area
      */
     private boolean checkLinearSymbolWinCombination(final LinearWinCombination winCombination, final String symbol, final String[][] gameMatrix) {
@@ -53,7 +53,7 @@ public class LinearWinCombination extends WinCombination {
      * Checks if the covered area on the game matrix matches the given symbol.
      *
      * @param symbol      - the current symbol
-     * @param gameMatrix     - the game matrix of symbols
+     * @param gameMatrix  - the game matrix of symbols
      * @param coveredArea - the area that needs to match for the win combination to apply
      * @return true if the covered area of symbol matches the game matrix
      */

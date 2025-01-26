@@ -17,9 +17,9 @@ public final class SymbolDeserializer extends JsonDeserializer<Symbol> {
      * Deserializes the symbols from a JSON first based on the 'type' and
      * then on the 'impact' attribute.
      *
-     * @param jp   Parser used for reading JSON content
+     * @param jp      Parser used for reading JSON content
      * @param context Context that can be used to access information about
-     *             this deserialization activity.
+     *                this deserialization activity.
      * @return the deserialized Symbol object
      * @throws IOException if JSON input is invalid
      */
