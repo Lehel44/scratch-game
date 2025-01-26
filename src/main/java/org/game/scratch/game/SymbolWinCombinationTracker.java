@@ -1,4 +1,4 @@
-package org.game.scratch.process;
+package org.game.scratch.game;
 
 import org.game.scratch.wincombinations.SameSymbolWinCombination;
 import org.game.scratch.wincombinations.WinCombination;

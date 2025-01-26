@@ -69,6 +69,12 @@ public class Main {
         // Initialize game matrix
         final int columns = config.get("columns").asInt();
         final int rows = config.get("rows").asInt();
+
+        // Check valid dimensions
+        if (columns <= 0 || rows <= 0) {
+            throw new IllegalArgumentException("Invalid game matrix dimensions, columns and rows must be greater than zero.");
+        }
+
         final GameMatrixManager manager = new GameMatrixManager(rows, columns, config.get("probabilities"));
         manager.initializeGameMatrix();
 
