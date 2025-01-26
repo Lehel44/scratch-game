@@ -8,6 +8,11 @@ import org.game.scratch.probability.WeightedProbabilitySymbolGenerator;
 import java.util.Map;
 import java.util.SplittableRandom;
 
+/**
+ * This class holds game related data including probability distribution and
+ * the game matrix. It provides functionality to initialize the game matrix
+ * and place the bonus symbol in it.
+ */
 public class GameMatrixManager {
 
     private final int rows;

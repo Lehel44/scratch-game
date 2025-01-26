@@ -16,7 +16,6 @@ import org.game.scratch.process.SymbolWinCombinationTracker;
 import org.game.scratch.symbols.Symbol;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.Map;
 
 
@@ -29,8 +28,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         final Options options = new Options();
 
-        options.addOption(CONFIG, true, "Path to the configuration JSON file");
-        options.addOption(BETTING_AMOUNT, true, "The betting amount to play with");
+        options.addOption("c", CONFIG, true, "Path to the configuration JSON file");
+        options.addOption("b", BETTING_AMOUNT, true, "The betting amount to play with");
 
         final CommandLineParser parser = new DefaultParser();
         final CommandLine cmd;
@@ -44,7 +43,7 @@ public class Main {
             }
 
             final String configPath = cmd.getOptionValue(CONFIG);
-            final double bettingAmount = Double.parseDouble(cmd.getOptionValue("betting_amount"));
+            final double bettingAmount = Double.parseDouble(cmd.getOptionValue(BETTING_AMOUNT));
 
             runGame(configPath, bettingAmount);
         } catch (ParseException e) {
@@ -66,9 +65,6 @@ public class Main {
         // Configure ObjectMapper with custom deserializer
         final SymbolProcessor symbolProcessor = new SymbolProcessor(config);
 
-        // Deserialze symbols into a (symbol name, symbol object) map
-        final Map<String, Symbol> symbols = symbolProcessor.deserializeSymbols();
-
         // Initialize game matrix
         final int columns = config.get("columns").asInt();
         final int rows = config.get("rows").asInt();
@@ -84,10 +80,13 @@ public class Main {
 
         // Process win combinations
         final WinCombinationProcessor processor = new WinCombinationProcessor(manager.getGameMatrix(), config);
-        final SymbolWinCombinationTracker tracker = processor.processWinCombinations();
+        final SymbolWinCombinationTracker.WinCombinationResult result = processor.processWinCombinations();
 
-        if (tracker.hasWon()) {
-            double winPrize = PrizeCalculator.calculate(bettingAmount, tracker.getAppliedWinCombinationBySymbol(), symbols, bonusSymbol);
+        if (result.hasWon()) {
+            // Deserialze symbols into a (symbol name, symbol object) map
+            final Map<String, Symbol> symbols = symbolProcessor.deserializeSymbols();
+            // Calculate win prize
+            double winPrize = PrizeCalculator.calculate(bettingAmount, result.appliedWinCombinationBySymbol(), symbols, bonusSymbol);
             System.out.println("WIN PRIZE: " + winPrize);
         } else {
             System.out.println("NO WIN!");

@@ -4,13 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.game.scratch.probability.WeightedProbabilitySymbolGenerator;
 import org.game.scratch.symbols.Symbol;
-import org.game.scratch.symbols.SymbolDeserializer;
 
 import java.util.Map;
 
+/**
+ * This class is responsible for processing the available symbols into a map structure
+ * and is able to generate the bonus symbol.
+ */
 public class SymbolProcessor {
 
     private final JsonNode config;

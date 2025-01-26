@@ -4,6 +4,7 @@ import org.game.scratch.wincombinations.SameSymbolWinCombination;
 import org.game.scratch.wincombinations.WinCombination;
 import org.game.scratch.wincombinations.WinCombinations;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,30 +14,27 @@ import java.util.Map;
  */
 public class SymbolWinCombinationTracker {
 
-    final Map<String, Map<String, WinCombination>> appliedWincombinationBySymbol;
-
-    public SymbolWinCombinationTracker() {
-        appliedWincombinationBySymbol = new HashMap<>();
-    }
-
     /**
      * Checks which win combinations applies for the given matrix and applies them.
      *
      * @param symbolCountMap  - map of (symbol names, symbol counts)
      * @param winCombinations - holds a (group, winCombination) map
-     * @param gameMatrix   - symbol array of the current game
+     * @param gameMatrix      - symbol array of the current game
      */
-    public void processWinCombinations(final Map<String, Integer> symbolCountMap, final WinCombinations winCombinations, final String[][] gameMatrix) {
+    public WinCombinationResult processWinCombinations(final Map<String, Integer> symbolCountMap, final WinCombinations winCombinations, final String[][] gameMatrix) {
+        final Map<String, Map<String, WinCombination>> appliedWinCombinationBySymbol = new HashMap<>();
+
         for (Map.Entry<String, Integer> symbolEntry : symbolCountMap.entrySet()) {
             final String symbolName = symbolEntry.getKey();
             final int symbolCount = symbolEntry.getValue();
 
             for (WinCombination winCombination : winCombinations.getWinCombinationMap().values()) {
                 if (winCombination.checkWinCombination(symbolName, gameMatrix, symbolCount)) {
-                    addWinCombination(symbolName, winCombination);
+                    addWinCombination(symbolName, winCombination, appliedWinCombinationBySymbol);
                 }
             }
         }
+        return new WinCombinationResult(Collections.unmodifiableMap(appliedWinCombinationBySymbol), !appliedWinCombinationBySymbol.isEmpty());
     }
 
     /**
@@ -45,10 +43,10 @@ public class SymbolWinCombinationTracker {
      * @param symbolName     - the name of the symbol
      * @param winCombination - the win combination object
      */
-    private void addWinCombination(final String symbolName, final WinCombination winCombination) {
+    private void addWinCombination(final String symbolName, final WinCombination winCombination, final Map<String, Map<String, WinCombination>> appliedWinCombinationBySymbol) {
         final String group = winCombination.getGroup();
 
-        final Map<String, WinCombination> groupWinCombinationMap = appliedWincombinationBySymbol
+        final Map<String, WinCombination> groupWinCombinationMap = appliedWinCombinationBySymbol
                 .computeIfAbsent(symbolName, k -> new HashMap<>());
 
         groupWinCombinationMap.merge(group, winCombination, this::resolveBetterCombination);
@@ -71,16 +69,7 @@ public class SymbolWinCombinationTracker {
         return existing;
     }
 
-    public Map<String, Map<String, WinCombination>> getAppliedWinCombinationBySymbol() {
-        return appliedWincombinationBySymbol;
-    }
-
-    /**
-     * Determines if any winning combination has been applied.
-     *
-     * @return true if at least one win combination is applied, false otherwise.
-     */
-    public boolean hasWon() {
-        return !appliedWincombinationBySymbol.isEmpty();
+    public record WinCombinationResult(Map<String, Map<String, WinCombination>> appliedWinCombinationBySymbol,
+                                       boolean hasWon) {
     }
 }

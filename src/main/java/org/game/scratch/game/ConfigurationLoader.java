@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Loads the configuration file into a JSON object
+ */
 public class ConfigurationLoader {
 
     private final String configPath;
@@ -16,7 +19,7 @@ public class ConfigurationLoader {
 
     public JsonNode loadConfig() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
-        return mapper.readTree(new File("src/main/resources/config.json"));
+        return mapper.readTree(new File(configPath));
     }
 
 }
