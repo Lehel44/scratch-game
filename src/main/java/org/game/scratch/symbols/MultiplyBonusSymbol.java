@@ -8,7 +8,7 @@ public class MultiplyBonusSymbol extends BonusSymbol {
     private double rewardMultiplier;
 
     @Override
-    public double applyEffect(double bet) {
+    public double applyEffect(final double bet) {
         return bet * rewardMultiplier;
     }
 }

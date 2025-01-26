@@ -16,7 +16,7 @@ public final class PrizeCalculator {
     }
 
 
-    public static double calculate(int bet, Map<String, Map<String, WinCombination>> appliedWincombinationBySymbol, Map<String, Symbol> symbols,
+    public static double calculate(double bet, Map<String, Map<String, WinCombination>> appliedWincombinationBySymbol, Map<String, Symbol> symbols,
                                     String bonusSymbolName) {
         double totalSum = calculateBaseWinPrize(bet, appliedWincombinationBySymbol, symbols);
         totalSum += applyBonusPrize(totalSum, symbols, bonusSymbolName);

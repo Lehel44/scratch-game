@@ -1,114 +1,96 @@
 package org.game.scratch;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.game.scratch.game.ConfigurationLoader;
+import org.game.scratch.game.GameMatrixManager;
+import org.game.scratch.game.SymbolProcessor;
+import org.game.scratch.game.WinCombinationProcessor;
 import org.game.scratch.prizes.PrizeCalculator;
-import org.game.scratch.probability.WeightedProbabilitySymbolGenerator;
 import org.game.scratch.process.SymbolWinCombinationTracker;
-import org.game.scratch.wincombinations.WinCombination;
-import org.game.scratch.wincombinations.WinCombinations;
-import org.game.scratch.symbols.StandardSymbol;
 import org.game.scratch.symbols.Symbol;
-import org.game.scratch.symbols.SymbolDeserializer;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.sql.SQLOutput;
 import java.util.Map;
-import java.util.SplittableRandom;
 
 
-//TODO unmodifiable getters
 public class Main {
+
+
+    private static final String CONFIG = "config";
+    private static final String BETTING_AMOUNT = "betting-amount";
+
     public static void main(String[] args) throws IOException {
+        final Options options = new Options();
 
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(Symbol.class, new SymbolDeserializer());
-        mapper.registerModule(module);
+        options.addOption(CONFIG, true, "Path to the configuration JSON file");
+        options.addOption(BETTING_AMOUNT, true, "The betting amount to play with");
 
+        final CommandLineParser parser = new DefaultParser();
+        final CommandLine cmd;
 
-        JsonNode jsonNode = mapper.readTree(new File("src/main/resources/config.json"));
-        String symbolsJson = jsonNode.get("symbols").toString();
+        try {
+            cmd = parser.parse(options, args);
 
-        // Deserialize symbols into a Map<String, Symbol>
-        Map<String, Symbol> symbols = mapper.readValue(
-                symbolsJson,
-                mapper.getTypeFactory().constructMapType(Map.class, String.class, Symbol.class)
-        );
-
-        // Print the deserialized symbols
-        symbols.forEach((key, value) -> System.out.printf("Name: %s, Class: %s%n", key, value.getClass().getSimpleName()));
-
-        int columns = jsonNode.get("columns").asInt();
-        int rows = jsonNode.get("rows").asInt();
-
-        String[][] symbol2DArray = new String[rows][columns];
-
-        JsonNode probabilityArray = jsonNode.get("probabilities").get("standard_symbols");
-
-        for (JsonNode node : probabilityArray) {
-            int column = node.get("column").asInt();
-            int row = node.get("row").asInt();
-            Map<String, Double> map = mapper.convertValue(node.get("symbols"), new TypeReference<>() {
-            });
-            String chosenSymbol = WeightedProbabilitySymbolGenerator.generate(map);
-            symbol2DArray[row][column] = chosenSymbol;
-        }
-
-        SplittableRandom random = new SplittableRandom();
-        int bonusColumn = random.nextInt(0, columns - 1);
-        int bonusRow = random.nextInt(0, rows - 1);
-
-        JsonNode jsonNodeBonusSymbols = jsonNode.get("probabilities").get("bonus_symbols").get("symbols");
-        Map<String, Double> bonusSymbolMap = mapper.convertValue(jsonNodeBonusSymbols, new TypeReference<>() {
-        });
-
-        String bonusSymbol = WeightedProbabilitySymbolGenerator.generate(bonusSymbolMap);
-
-        symbol2DArray[bonusRow][bonusColumn] = bonusSymbol;
-
-        for (int i = 0; i < symbol2DArray.length; i++) {
-            for (int j = 0; j < symbol2DArray[i].length; j++) {
-                System.out.print(symbol2DArray[i][j] + " ");
+            if (!cmd.hasOption(CONFIG) || !cmd.hasOption(BETTING_AMOUNT)) {
+                printUsage(options);
+                return;
             }
-            System.out.println();
+
+            final String configPath = cmd.getOptionValue(CONFIG);
+            final double bettingAmount = Double.parseDouble(cmd.getOptionValue("betting_amount"));
+
+            runGame(configPath, bettingAmount);
+        } catch (ParseException e) {
+            System.out.println("Error parsing command line arguments: " + e.getMessage());
+            printUsage(options);
         }
 
-        JsonNode winCombinationsNode = jsonNode.get("win_combinations");
-
-        WinCombinations winCombinations = mapper.treeToValue(winCombinationsNode, WinCombinations.class);
-
-        Map<String, Integer> symbolCountMap = countSameSymbols(symbol2DArray);
-
-        SymbolWinCombinationTracker winCombinationTracker = new SymbolWinCombinationTracker();
-        winCombinationTracker.processWinCombinations(symbolCountMap, winCombinations, symbol2DArray);
-
-        int bet = 100;
-
-        if (winCombinationTracker.hasWon()) {
-            double winPrize = PrizeCalculator.calculate(bet, winCombinationTracker.getAppliedWinCombinationBySymbol(), symbols, bonusSymbol);
-            System.out.println("WIN PRIZE: " + winPrize);
-        }
-
-
-        System.out.println("asd");
     }
 
+    private static void printUsage(Options options) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("java -jar <your-jar-file>", options);
+    }
 
-    public static Map<String, Integer> countSameSymbols(String[][] array2D) {
-        Map<String, Integer> countSymbolMap = new HashMap<>();
-        for (String[] array : array2D) {
-            for (String symbol : array) {
-                if (countSymbolMap.containsKey(symbol)) {
-                    countSymbolMap.put(symbol, countSymbolMap.get(symbol) + 1);
-                } else {
-                    countSymbolMap.put(symbol, 1);
-                }
-            }
+    private static void runGame(final String configPath, final double bettingAmount) throws IOException {
+        ConfigurationLoader loader = new ConfigurationLoader(configPath);
+        final JsonNode config = loader.loadConfig();
+
+        // Configure ObjectMapper with custom deserializer
+        final SymbolProcessor symbolProcessor = new SymbolProcessor(config);
+
+        // Deserialze symbols into a (symbol name, symbol object) map
+        final Map<String, Symbol> symbols = symbolProcessor.deserializeSymbols();
+
+        // Initialize game matrix
+        final int columns = config.get("columns").asInt();
+        final int rows = config.get("rows").asInt();
+        final GameMatrixManager manager = new GameMatrixManager(rows, columns, config.get("probabilities"));
+        manager.initializeGameMatrix();
+
+        // Generate and place bonus symbol in the game matrix
+        final String bonusSymbol = symbolProcessor.getBonusSymbol();
+        manager.placeBonusSymbol(bonusSymbol);
+
+        // Print game matrix
+        manager.printGameMatrix();
+
+        // Process win combinations
+        final WinCombinationProcessor processor = new WinCombinationProcessor(manager.getGameMatrix(), config);
+        final SymbolWinCombinationTracker tracker = processor.processWinCombinations();
+
+        if (tracker.hasWon()) {
+            double winPrize = PrizeCalculator.calculate(bettingAmount, tracker.getAppliedWinCombinationBySymbol(), symbols, bonusSymbol);
+            System.out.println("WIN PRIZE: " + winPrize);
+        } else {
+            System.out.println("NO WIN!");
         }
-        return countSymbolMap;
     }
 }

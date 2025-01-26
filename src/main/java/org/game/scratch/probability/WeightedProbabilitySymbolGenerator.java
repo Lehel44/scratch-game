@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SplittableRandom;
 
-public class WeightedProbabilitySymbolGenerator {
+public final class WeightedProbabilitySymbolGenerator {
 
     private WeightedProbabilitySymbolGenerator() {
         // Utility class
@@ -19,7 +19,7 @@ public class WeightedProbabilitySymbolGenerator {
      * @param probabilityDistribution a map of symbols and probabilities
      * @return the chosen symbol
      */
-    public static String generate(Map<String, Double> probabilityDistribution) {
+    public static String generate(final Map<String, Double> probabilityDistribution) {
         validateProbabilityDistribution(probabilityDistribution);
 
         List<String> symbols = new ArrayList<>();

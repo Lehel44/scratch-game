@@ -21,17 +21,9 @@ public abstract class WinCombination {
         return rewardMultiplier;
     }
 
-    public void setRewardMultiplier(double rewardMultiplier) {
-        this.rewardMultiplier = rewardMultiplier;
-    }
-
     public String getGroup() {
         return group;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public abstract boolean checkWinCombination(String symbol, String[][] array2D, int symbolCount);
+    public abstract boolean checkWinCombination(final String symbol, final String[][] gameMatrix, final int symbolCount);
 }

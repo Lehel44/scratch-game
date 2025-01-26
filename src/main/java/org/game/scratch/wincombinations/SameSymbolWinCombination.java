@@ -12,7 +12,7 @@ public class SameSymbolWinCombination extends WinCombination {
     }
 
     @Override
-    public boolean checkWinCombination(String symbol, String[][] array2D, int symbolCount) {
+    public boolean checkWinCombination(final String symbol, final String[][] gameMatrix, final int symbolCount) {
         return checkSameSymbolWinCombination(this, symbolCount);
     }
 
@@ -24,7 +24,7 @@ public class SameSymbolWinCombination extends WinCombination {
      * @param symbolCount    - the count of the specified symbol
      * @return if the win combination applies
      */
-    private boolean checkSameSymbolWinCombination(SameSymbolWinCombination winCombination, int symbolCount) {
+    private boolean checkSameSymbolWinCombination(final SameSymbolWinCombination winCombination, final int symbolCount) {
         return winCombination.getCount() <= symbolCount;
     }
 }

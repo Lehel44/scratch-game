@@ -18,13 +18,13 @@ public final class SymbolDeserializer extends JsonDeserializer<Symbol> {
      * then on the 'impact' attribute.
      *
      * @param jp   Parser used for reading JSON content
-     * @param ctxt Context that can be used to access information about
+     * @param context Context that can be used to access information about
      *             this deserialization activity.
      * @return the deserialized Symbol object
      * @throws IOException if JSON input is invalid
      */
     @Override
-    public Symbol deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public Symbol deserialize(final JsonParser jp, final DeserializationContext context) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         JsonNode node = mapper.readTree(jp);
 

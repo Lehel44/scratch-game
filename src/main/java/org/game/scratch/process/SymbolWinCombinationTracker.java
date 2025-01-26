@@ -24,15 +24,15 @@ public class SymbolWinCombinationTracker {
      *
      * @param symbolCountMap  - map of (symbol names, symbol counts)
      * @param winCombinations - holds a (group, winCombination) map
-     * @param symbol2DArray   - symbol array of the current game
+     * @param gameMatrix   - symbol array of the current game
      */
-    public void processWinCombinations(Map<String, Integer> symbolCountMap, WinCombinations winCombinations, String[][] symbol2DArray) {
+    public void processWinCombinations(final Map<String, Integer> symbolCountMap, final WinCombinations winCombinations, final String[][] gameMatrix) {
         for (Map.Entry<String, Integer> symbolEntry : symbolCountMap.entrySet()) {
-            String symbolName = symbolEntry.getKey();
-            int symbolCount = symbolEntry.getValue();
+            final String symbolName = symbolEntry.getKey();
+            final int symbolCount = symbolEntry.getValue();
 
             for (WinCombination winCombination : winCombinations.getWinCombinationMap().values()) {
-                if (winCombination.checkWinCombination(symbolName, symbol2DArray, symbolCount)) {
+                if (winCombination.checkWinCombination(symbolName, gameMatrix, symbolCount)) {
                     addWinCombination(symbolName, winCombination);
                 }
             }
@@ -45,10 +45,10 @@ public class SymbolWinCombinationTracker {
      * @param symbolName     - the name of the symbol
      * @param winCombination - the win combination object
      */
-    private void addWinCombination(String symbolName, WinCombination winCombination) {
-        String group = winCombination.getGroup();
+    private void addWinCombination(final String symbolName, final WinCombination winCombination) {
+        final String group = winCombination.getGroup();
 
-        Map<String, WinCombination> groupWinCombinationMap = appliedWincombinationBySymbol
+        final Map<String, WinCombination> groupWinCombinationMap = appliedWincombinationBySymbol
                 .computeIfAbsent(symbolName, k -> new HashMap<>());
 
         groupWinCombinationMap.merge(group, winCombination, this::resolveBetterCombination);
@@ -63,7 +63,7 @@ public class SymbolWinCombinationTracker {
      * @param current  - the current win combination
      * @return the better win combination
      */
-    private WinCombination resolveBetterCombination(WinCombination existing, WinCombination current) {
+    private WinCombination resolveBetterCombination(final WinCombination existing, final WinCombination current) {
         if (existing instanceof SameSymbolWinCombination existingSameSymbolWinCombination &&
                 current instanceof SameSymbolWinCombination currentSameSymbolWinCombination) {
             return currentSameSymbolWinCombination.getCount() > existingSameSymbolWinCombination.getCount() ? current : existing;

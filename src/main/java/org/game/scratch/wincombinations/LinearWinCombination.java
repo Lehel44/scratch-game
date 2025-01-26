@@ -17,8 +17,8 @@ public class LinearWinCombination extends WinCombination {
     }
 
     @Override
-    public boolean checkWinCombination(String symbol, String[][] array2D, int symbolCount) {
-        return checkLinearSymbolWinCombination(this, symbol, array2D);
+    public boolean checkWinCombination(final String symbol, final String[][] gameMatrix, final int symbolCount) {
+        return checkLinearSymbolWinCombination(this, symbol, gameMatrix);
     }
 
     /**
@@ -27,13 +27,13 @@ public class LinearWinCombination extends WinCombination {
      *
      * @param winCombination - the win combination that contains the areas
      * @param symbol         - the symbol that the covered areas may contain
-     * @param array2D        - the game matrix
+     * @param gameMatrix        - the game matrix
      * @return if there is matching covered area
      */
-    private boolean checkLinearSymbolWinCombination(LinearWinCombination winCombination, String symbol, String[][] array2D) {
+    private boolean checkLinearSymbolWinCombination(final LinearWinCombination winCombination, final String symbol, final String[][] gameMatrix) {
         List<List<String>> coveredAreasList = winCombination.getCoveredAreas();
         for (List<String> coveredArea : coveredAreasList) {
-            if (isAreaCovered(symbol, array2D, coveredArea)) {
+            if (isAreaCovered(symbol, gameMatrix, coveredArea)) {
                 return true;
             }
         }
@@ -44,16 +44,16 @@ public class LinearWinCombination extends WinCombination {
      * Checks if the covered area on the game matrix matches the given symbol.
      *
      * @param symbol      - the current symbol
-     * @param array2D     - the game matrix of symbols
+     * @param gameMatrix     - the game matrix of symbols
      * @param coveredArea - the area that needs to match for the win combination to apply
      * @return true if the covered area of symbol matches the game matrix
      */
-    private boolean isAreaCovered(String symbol, String[][] array2D, List<String> coveredArea) {
+    private boolean isAreaCovered(final String symbol, final String[][] gameMatrix, final List<String> coveredArea) {
         for (String coordinateString : coveredArea) {
             String[] coordinates = coordinateString.split(":");
             int row = Integer.parseInt(coordinates[0]);
             int column = Integer.parseInt(coordinates[1]);
-            if (!array2D[row][column].equals(symbol)) {
+            if (!gameMatrix[row][column].equals(symbol)) {
                 return false;
             }
         }
